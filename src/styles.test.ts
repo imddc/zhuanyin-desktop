@@ -87,6 +87,20 @@ const leftPadding = (selector: string): string | null => {
 }
 
 describe('样式表的隐式覆盖', () => {
+  it('窄窗口的播放控制可以换行，播放按钮不被压缩', () => {
+    expect(resolved('.player', 'flex-wrap')).toBe('wrap')
+    expect(resolved('.player__toggle', 'flex-shrink')).toBe('0')
+  })
+  it('原生控件采用深色主题，滚动条不会使用亮色系统默认值', () => {
+    expect(resolved(':root', 'color-scheme')).toBe('dark')
+    expect(resolved('*', 'scrollbar-color')).toBe('var(--scrollbar-thumb) transparent')
+  })
+
+  it('旧版 WebKit 的滚动条也使用主题色，悬停时提高可见度', () => {
+    expect(resolved('::-webkit-scrollbar-thumb', 'background-color')).toBe('var(--scrollbar-thumb)')
+    expect(resolved('::-webkit-scrollbar-thumb:hover', 'background-color')).toBe('var(--scrollbar-thumb-hover)')
+  })
+
   it('引导页三步进度条保留左侧留白（别再被后面的 padding: 0 吃掉）', () => {
     // 曾经的样子：组合规则给了 32px 留白，后面一条 `.stepper { padding: 0 }`
     // 因为同优先级且书写靠后而覆盖掉它，进度条于是紧贴窗口左边缘。

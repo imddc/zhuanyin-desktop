@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
+import type { ITranscribeJob } from './types'
 
 /**
  * 开发工具（不是测试）：把真实组件 + 真实构建产物 CSS 渲染成静态 HTML，供 Chrome 无头截图。
@@ -76,19 +77,24 @@ describe.skipIf(process.env.PREVIEW_STATES !== '1')('预览页生成', () => {
   it('把各状态渲染成静态 HTML', async () => {
     const { ModelList } = await import('../src/components/ModelList')
     const { SettingsPage } = await import('../src/pages/SettingsPage')
+    const { Sidebar } = await import('./components/Sidebar')
+    const { TranscribePage } = await import('./pages/TranscribePage')
 
     mkdirSync(OUT, { recursive: true })
 
     // 真实外壳：.shell(flex column, 100%) > .shell__titlebar + .app(flex row) > 侧边栏 + .content
     // 少了这层嵌套，.content 的 flex:1 就不生效，panel 高度的问题根本复现不出来
-    const sidebarStub = `<aside class="sidebar">
-      <div class="sidebar__brand"><span class="sidebar__mark"></span><div>
-        <p class="sidebar__title">转音</p><p class="sidebar__sub">本机离线转写</p></div></div>
-      <nav class="sidebar__nav">
-        <button class="nav-item">转写</button><button class="nav-item">模型</button>
-        <button class="nav-item">历史</button><button class="nav-item nav-item--active">设置</button>
-      </nav>
-    </aside>`
+    /** Use the real sidebar so previews also catch brand and navigation regressions. */
+    const sidebar = (activePage: 'transcribe' | 'models' | 'settings'): string =>
+      renderToStaticMarkup(
+        <Sidebar
+          page={activePage}
+          onChange={noop}
+          counts={{ transcribe: 3, models: 1, history: 12, settings: null }}
+          engineReady
+          activeModelName="Large v3 Turbo · Q5_0"
+        />,
+      )
 
     // 1) 模型列表的三种下载态：下载中（37%）、校验中、已完成
     const models = [
@@ -113,7 +119,7 @@ describe.skipIf(process.env.PREVIEW_STATES !== '1')('预览页生成', () => {
     writeFileSync(
       resolve(OUT, 'models.html'),
       page(
-        `<div class="shell"><div class="shell__titlebar"></div><div class="app">${sidebarStub}
+        `<div class="shell"><div class="shell__titlebar"></div><div class="app">${sidebar('models')}
           <main class="content"><div class="page"><section class="panel">
           <header class="panel__head"><h2 class="panel__title">识别模型</h2>
           <div class="panel__actions"><span class="panel__meta">3 个</span></div></header>
@@ -169,11 +175,72 @@ describe.skipIf(process.env.PREVIEW_STATES !== '1')('预览页生成', () => {
 
     const settingsShell = `<div class="shell">
       <div class="shell__titlebar"></div>
-      <div class="app">${sidebarStub}<main class="content">${settingsBody}</main></div>
+      <div class="app">${sidebar('settings')}<main class="content">${settingsBody}</main></div>
     </div>`
 
     writeFileSync(resolve(OUT, 'settings.html'), page(settingsShell))
     writeFileSync(resolve(OUT, 'settings-short.html'), page(settingsShell + diagnose, '#app { height: 100%; }'))
+
+    // A long transcript keeps the scrollbar visible and exercises the minimum workspace size.
+    const segments = Array.from({ length: 60 }, (_, index) => ({
+      start: index * 8,
+      end: index * 8 + 8,
+      text: '我们先核对这段录音的识别结果，再整理成可回听的逐字稿。点击段落可以跳到对应时间，长内容应该自然滚动。',
+    }))
+    const job: ITranscribeJob = {
+      id: 'preview-running',
+      name: '访谈录音',
+      sourcePath: '/recordings/interview.m4a',
+      status: 'running',
+      ratio: 0.64,
+      phase: null,
+      durationSeconds: 750,
+      segments,
+      text: '',
+      files: {},
+      errorMessage: null,
+      startedAt: null,
+      finishedAt: null,
+      modelId: 'large-v3-turbo-q5_0',
+      modelName: 'Large v3 Turbo · Q5_0',
+      language: 'zh',
+      sourceRate: 44100,
+      sourceChannels: 2,
+      historyId: null,
+    }
+    const transcribeBody = renderToStaticMarkup(
+      <TranscribePage
+        engineReady
+        dragActive={false}
+        onPaths={noop}
+        onOpenModels={noop}
+        jobs={[job, { ...job, id: 'preview-queued', name: '会议录音', status: 'queued', ratio: 0, segments: [] }]}
+        selectedId={job.id}
+        onSelect={noop}
+        onCancel={noop}
+        onClearFinished={noop}
+        selectedJob={job}
+        segments={segments}
+        activeIndex={2}
+        onSeek={noop}
+        onCopyAll={noop}
+        onReveal={noop}
+        sourceUrl={null}
+        playing={false}
+        currentTime={20}
+        duration={750}
+        playbackRate={1}
+        onToggle={noop}
+        onRateChange={noop}
+      />,
+    )
+    writeFileSync(
+      resolve(OUT, 'transcribe.html'),
+      page(
+        `<div class="shell"><div class="shell__titlebar"></div><div class="app">${sidebar('transcribe')}
+      <main class="content">${transcribeBody}</main></div></div>`,
+      ),
+    )
 
     console.log(`预览页已写入 ${OUT}，CSS=${cssHref()}`)
 
