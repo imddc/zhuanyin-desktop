@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="转音 zhuanyin">
+  <title>转音</title>
+  <!--
+    与应用图标（icon-source.png → icon.icns）同一套视觉，几何与配色都是从那张 1024px 源图量出来的：
+    圆角 27/128、五根胶囊条宽 7/128、条色 #5AA6FF（正是应用 CSS 里的 accent 变量）、
+    底色 #16202C 到 #0D1117 的竖向渐变（后者正是应用背景色）。
+    README 图标与应用图标必须是「同一个东西」，改这里之前先对照一下 app 图标。
+    注意：XML 注释里不能出现两个连续的连字符，所以这里不写 CSS 变量名。
+  -->
+  <defs>
+    <linearGradient id="zhuanyin-tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#16202C" />
+      <stop offset="1" stop-color="#0D1117" />
+    </linearGradient>
+  </defs>
+
+  <rect width="128" height="128" rx="27" fill="url(#zhuanyin-tile)" />
+
+  <!-- 五根条垂直居中于 y=64，高度中高两边低 -->
+  <g fill="#5AA6FF">
+    <rect x="35.5" y="52.8" width="7" height="22.4" rx="3.5" />
+    <rect x="48" y="45.7" width="7" height="36.6" rx="3.5" />
+    <rect x="60.5" y="34.5" width="7" height="59" rx="3.5" />
+    <rect x="73" y="42.2" width="7" height="43.6" rx="3.5" />
+    <rect x="85.5" y="50.5" width="7" height="27.1" rx="3.5" />
+  </g>
+</svg>

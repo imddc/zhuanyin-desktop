@@ -1,0 +1,4 @@
+# pnpm 11 起用 allowBuilds 取代 onlyBuiltDependencies（旧键会被静默忽略）
+# esbuild 需要 postinstall 才能落地平台二进制，否则 vite / vitest 起不来
+allowBuilds:
+  esbuild: true

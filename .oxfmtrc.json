@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  // 对齐本仓既有风格：单引号、无分号（换行宽度 120 与作者手写习惯一致，差异最小）
+  "semi": false,
+  "singleQuote": true,
+  "printWidth": 120,
+  // 关掉 package.json 键排序：pnpm 不重排键顺序，而 oxfmt 默认会按自己的顺序重写，
+  // 两者会互相打架 —— 每次 pnpm add 之后 format:check 都会失败
+  "sortPackageJson": false,
+  // 不格式化 Markdown：README 面向用户、手工排版，oxfmt 会把表格改成对齐填充，
+  // 渲染结果一模一样却产生大量与内容无关的 diff
+  "ignorePatterns": ["**/*.md"]
+}

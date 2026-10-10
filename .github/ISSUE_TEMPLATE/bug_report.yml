@@ -1,0 +1,95 @@
+# 缺陷报告表单。
+#
+# 两个刻意的设计：
+# - 自动打 `needs-repro` 而不是 `bug`：未经复现的问题不预先定性，等确认后再改标签
+# - 「最小复现」是必填项：没有它就不进入排查，这是 antfu 那一套里最有效的机制
+name: 缺陷报告
+description: 功能与预期不符
+title: 'fix: '
+labels: [needs-repro]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提之前先确认两件事，能省掉一轮来回：
+
+        - 搜过已有 issue，没有重复
+        - 能给出**最小复现** —— 为什么这一步重要，见 [为什么需要最小复现](https://antfu.me/posts/why-reproductions-are-required)
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 背景
+      description: 什么场景下遇到的，影响什么
+      placeholder: 我在用拖拽加入一批 m4a 时……
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 一步一步写，别写「随便点点就崩」
+      placeholder: |
+        1. 打开应用
+        2. 拖入 3 个 m4a
+        3. 第二个任务卡在 40%
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为与日志
+      description: 报错信息、终端输出、应用日志都贴在这里（会自动按代码块渲染）
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: reproduction
+    attributes:
+      label: 最小复现
+      description: 仓库链接、示例音频、或能稳定触发的最小步骤。填「无法提供」也要写明原因
+      placeholder: https://github.com/… 或「示例音频 3 秒即可触发，无法公开因为……」
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: 环境
+      description: 系统版本、芯片、应用版本、正在使用的模型
+      placeholder: macOS 27.0.1 / Apple Silicon / 转音 0.1.0 / Large v3 Turbo · Q5_0
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: self-check
+    attributes:
+      label: 自查
+      options:
+        - label: 已搜过 issue，没有重复
+          required: true
+        - label: 已给出最小复现，或说明了为何无法提供
+          required: true
+        - label: 上面的日志是原始输出，不是转述
+          required: true
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: 参与意愿（可选）
+      description: 想自己动手就勾上，我会把标签换成 help wanted 并给实现方向
+      options:
+        - label: 我愿意提交修复 PR
+          required: false
+        - label: 我愿意提交带失败测试的修复 PR
+          required: false

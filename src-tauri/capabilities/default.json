@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "转音的最小权限集：核心 IPC、窗口拖动、系统原生文件选择对话框。主窗口与引导窗口共用。",
+  "windows": ["main", "onboarding"],
+  "permissions": ["core:default", "core:window:allow-start-dragging", "dialog:allow-open", "core:window:allow-close"]
+}

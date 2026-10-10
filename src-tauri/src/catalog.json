@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "note": "模型清单。sha256 取自上游 Hugging Face 仓库文件的 LFS oid（权威值），下载后必须逐字节校验；镜像只是加速通道，不受信任。",
+  "upstream": "ggerganov/whisper.cpp",
+  "models": [
+    {
+      "id": "large-v3-turbo-q5_0",
+      "name": "Large v3 Turbo · Q5_0",
+      "description": "推荐。速度与准确率最平衡，中英文混说表现稳定",
+      "filename": "ggml-large-v3-turbo-q5_0.bin",
+      "sizeBytes": 574041195,
+      "sha256": "394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2",
+      "multilingual": true,
+      "recommended": true,
+      "speedScore": 5,
+      "accuracyScore": 4
+    },
+    {
+      "id": "large-v3-turbo-q8_0",
+      "name": "Large v3 Turbo · Q8_0",
+      "description": "在 turbo 上再提一档精度，体积与耗时都更大",
+      "filename": "ggml-large-v3-turbo-q8_0.bin",
+      "sizeBytes": 874188075,
+      "sha256": "317eb69c11673c9de1e1f0d459b253999804ec71ac4c23c17ecf5fbe24e259a1",
+      "multilingual": true,
+      "recommended": false,
+      "speedScore": 4,
+      "accuracyScore": 5
+    },
+    {
+      "id": "large-v3-q5_0",
+      "name": "Large v3 · Q5_0",
+      "description": "非蒸馏版，长录音与口音较重时更稳，速度慢一些",
+      "filename": "ggml-large-v3-q5_0.bin",
+      "sizeBytes": 1081140203,
+      "sha256": "d75795ecff3f83b5faa89d1900604ad8c780abd5739fae406de19f23ecd98ad1",
+      "multilingual": true,
+      "recommended": false,
+      "speedScore": 3,
+      "accuracyScore": 5
+    },
+    {
+      "id": "large-v3-turbo-f16",
+      "name": "Large v3 Turbo · F16",
+      "description": "未量化原始权重，精度最高，需要约 1.6 GB 磁盘与更多内存",
+      "filename": "ggml-large-v3-turbo.bin",
+      "sizeBytes": 1624555275,
+      "sha256": "1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69",
+      "multilingual": true,
+      "recommended": false,
+      "speedScore": 3,
+      "accuracyScore": 5
+    },
+    {
+      "id": "medium-q5_0",
+      "name": "Medium · Q5_0",
+      "description": "上一代中档模型，准确率低于 large，速度相近",
+      "filename": "ggml-medium-q5_0.bin",
+      "sizeBytes": 539212467,
+      "sha256": "19fea4b380c3a618ec4723c3eef2eb785ffba0d0538cf43f8f235e7b3b34220f",
+      "multilingual": true,
+      "recommended": false,
+      "speedScore": 4,
+      "accuracyScore": 3
+    },
+    {
+      "id": "small-q8_0",
+      "name": "Small · Q8_0",
+      "description": "轻量选择，适合对速度敏感、可接受精度下降的场景",
+      "filename": "ggml-small-q8_0.bin",
+      "sizeBytes": 264464607,
+      "sha256": "49c8fb02b65e6049d5fa6c04f81f53b867b5ec9540406812c643f177317f779f",
+      "multilingual": true,
+      "recommended": false,
+      "speedScore": 5,
+      "accuracyScore": 3
+    },
+    {
+      "id": "base-q5_1",
+      "name": "Base · Q5_1",
+      "description": "极小体积，用于快速验证链路，不适合正式转写",
+      "filename": "ggml-base-q5_1.bin",
+      "sizeBytes": 59707625,
+      "sha256": "422f1ae452ade6f30a004d7e5c6a43195e4433bc370bf23fac9cc591f01a8898",
+      "multilingual": true,
+      "recommended": false,
+      "speedScore": 5,
+      "accuracyScore": 2
+    },
+    {
+      "id": "tiny-q5_1",
+      "name": "Tiny · Q5_1",
+      "description": "最小体积，只用来确认「能不能跑通」",
+      "filename": "ggml-tiny-q5_1.bin",
+      "sizeBytes": 32152673,
+      "sha256": "818710568da3ca15689e31a743197b520007872ff9576237bda97bd1b469c3d7",
+      "multilingual": true,
+      "recommended": false,
+      "speedScore": 5,
+      "accuracyScore": 1
+    }
+  ]
+}

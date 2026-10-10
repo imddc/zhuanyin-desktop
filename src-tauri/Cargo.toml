@@ -1,0 +1,76 @@
+[package]
+name = "zhuanyin"
+version = "0.1.2"
+description = "转音：本机离线语音转写桌面应用（Rust 原生 whisper.cpp 引擎）"
+authors = ["imddc"]
+edition = "2021"
+rust-version = "1.77"
+default-run = "zhuanyin"
+
+[lib]
+name = "zhuanyin_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+# tauri:dev 用的是 dev profile，默认 opt-level = 0。
+# 音频解码（symphonia）与重采样（rubato）是纯 Rust 的密集计算，未优化时会慢几十倍：
+# 实测同一个 14.7 分钟 AAC 文件，解码要 64 秒（release 只要 1.4 秒），
+# 用户看到的就是「文件拖进去半天没反应」。
+# 只优化依赖、自己的 crate 保持未优化 —— 自己的代码改一行仍然秒级重编。
+[profile.dev.package."*"]
+opt-level = 3
+
+# 自己的 crate 也要优化：rubato 的泛型重采样代码会在调用方（也就是本 crate）
+# 单态化，只优化依赖救不了它 —— 实测重采样仍然慢 4 倍、混声道慢 13 倍。
+[profile.dev]
+opt-level = 2
+
+[dependencies]
+# protocol-asset：前端用 asset:// 协议直接播放本机音频（时间轴联动要用）
+# macos-private-api 是透明窗口（引导窗口的圆角）在 macOS 上的前置条件；
+# 代价是该构建无法上架 Mac App Store —— 本项目走 DMG 分发，不受影响。
+tauri = { version = "2", features = ["protocol-asset", "macos-private-api"] }
+# 选音频文件用系统原生对话框（走官方插件，避免自己在 Rust 里包一层 rfd）
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# 识别引擎：whisper.cpp 的 Rust 绑定。metal 让推理走 Apple GPU，且 Metal 内核是
+# 内嵌进二进制的（GGML_METAL_EMBED_LIBRARY），不需要随包分发大的 metallib。
+# raw-api：自动检测语言后要用 whisper_lang_str 把语言 id 换成语言代码。
+whisper-rs = { version = "0.16", features = ["metal", "raw-api"] }
+
+# 音频解码：纯 Rust，一个字节的外部可执行文件都不需要。
+# 这是「不再要求用户装 ffmpeg」的关键——之前靠 ffmpeg 转码，现在在进程内解码。
+symphonia = { version = "0.6", features = [
+  "aac",
+  "adpcm",
+  "aiff",
+  "alac",
+  "caf",
+  "flac",
+  "isomp4",
+  "mp3",
+  "mpa",
+  "ogg",
+  "pcm",
+  "vorbis",
+  "wav",
+  "opt-simd-neon",
+] }
+# 重采样：识别引擎只接受 16 kHz 单声道，用 windowed-sinc 而不是线性插值
+rubato = "0.16"
+
+# 历史持久化：bundled 编译自带 SQLite，不依赖系统库版本
+rusqlite = { version = "0.37", features = ["bundled"] }
+# 模型下载：rustls 避免依赖 OpenSSL
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "stream"] }
+futures-util = "0.3"
+sha2 = "0.10"
+# 下载要能取消、要有停滞看门狗（长时间收不到字节即失败，而不是永远挂着）
+tokio = { version = "1", features = ["fs", "time", "io-util"] }
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]

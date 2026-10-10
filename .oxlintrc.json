@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  // plugins 必须显式列全：一旦声明就会替换默认集合（漏掉 unicorn 之类会静默少检查）
+  "plugins": ["typescript", "unicorn", "oxc", "react", "vitest"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error",
+    // 过时规则：React 17 起 JSX 走自动运行时，不需要 React 在作用域内（本项目 React 19 + Vite）。
+    // 它由 suspicious 类别带出来，本项目一律误报，故整条关闭；其余 suspicious 规则保持开启。
+    "react/react-in-jsx-scope": "off"
+  },
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "es2024": true
+  },
+  // 依赖、构建产物与覆盖率输出不进检查范围；测试文件在 src/ 下与源码同目录，不排除
+  "ignorePatterns": ["dist", "src-tauri/target", "coverage"]
+}

@@ -1,0 +1,40 @@
+name: CI
+
+# 前端检查：跑在所有 PR 与 main 推送上。
+#
+# Rust 检查在 ci-rust.yml 里单独成文件 —— 它是唯一跑在 macOS 上的 job，
+# 一次要一两分钟且 runner 计费约为 Linux 的十倍，所以加了 paths 过滤，
+# 只改前端或文档时不让它启动。详见那个文件顶部的说明。
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# 同一分支的旧运行直接取消：既省额度，也不用等一串过期结果
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# 全部是只读检查，不需要写权限
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: 前端检查
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # 只读入口：lint 与 format:check 都不改文件（CI 不依赖本地自动格式化）
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm typecheck
+      - run: pnpm test

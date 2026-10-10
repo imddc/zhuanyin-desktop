@@ -1,0 +1,90 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  # 手动触发：只构建并上传为产物，不发 Release（没有标签可挂）
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  macos:
+    name: 构建 macOS 安装包
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v7
+
+      # 当前产物只发 arm64：宁可在这里响亮地失败，也不要悄悄发出架构不符的包。
+      # 引擎换成 whisper.cpp 之后不再有 Apple 芯片的本质约束，
+      # 但扩到 Intel / 其它平台需要各自验证，不在这一版范围内。
+      - name: 确认 runner 是 Apple Silicon
+        run: |
+          test "$(uname -m)" = "arm64" || {
+            echo "::error::当前发布产物是 arm64，需要 Apple Silicon runner"
+            exit 1
+          }
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: pnpm install --frozen-lockfile
+
+      # 发版前先在 CI 里把该跑的检查跑一遍。
+      # 引擎链路验收只在本地做（需要一个已下载的模型），见 ci.yml 的说明。
+      - name: 代码检查
+        run: |
+          pnpm lint
+          pnpm format:check
+          pnpm typecheck
+          pnpm test
+
+      - name: 构建
+        run: pnpm tauri:build
+
+      # 打包成 zip：Tauri 的 DMG 步骤依赖图形会话，runner 上跑不了（见脚本里的说明）
+      - name: 打包与校验和
+        run: ./scripts/package-macos.sh
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: 转音-macos-arm64
+          path: dist-release/*
+          if-no-files-found: error
+
+      - name: 发布 Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v3
+        with:
+          files: dist-release/*
+          generate_release_notes: true
+          body: |
+            ## 安装
+
+            1. 下载 `转音_<版本>_arm64.dmg`，打开后把「转音」拖进「应用程序」
+               （若附件是 `.zip` —— 那是 DMG 建不出来时的兜底 —— 解压后同样拖进去即可）
+            2. 构建**未做代码签名与公证**，首次打开请**右键 →「打开」**（或执行 `xattr -dr com.apple.quarantine /Applications/转音.app`）
+
+            当前产物是 Apple Silicon（arm64）。
+
+            ## 第一次使用
+
+            打开应用后左栏会停在「模型」页，**选一个模型下载即可开始用** —— 不需要装 Python、ffmpeg 或任何命令行工具，引擎与音频解码都已内置在应用里。
+
+            模型不随包分发（最小的 Tiny 也要 31 MB，推荐的 Large v3 Turbo Q5_0 为 574 MB）。下载有断点续传与 sha256 校验，默认走国内镜像。
+
+            ## 校验
+
+            同附 `SHA256SUMS.txt`（在 arm64 runner 上生成），可执行 `shasum -a 256 -c SHA256SUMS.txt` 核对。
+
+            > 打包方式说明：Tauri 自带的 DMG 步骤要靠 Finder 会话摆窗口布局，自动化里会失败；`scripts/package-macos.sh` 绕开它，用 `hdiutil` 直接建普通 DMG 并挂载校验，建不出来才回落到 zip。

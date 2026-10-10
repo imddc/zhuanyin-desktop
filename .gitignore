@@ -1,0 +1,9 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+.DS_Store
+*.log
+
+# 发布打包产物（scripts/package-macos.sh 与 release workflow 的输出）
+dist-release/

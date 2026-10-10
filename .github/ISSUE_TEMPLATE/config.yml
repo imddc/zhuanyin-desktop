@@ -1,0 +1,12 @@
+# 关掉「空白 issue」入口：强制走上面三个表单，才能拿到自动打标与必填字段。
+#
+# 取舍：antfu 的 config.yml 里没有 Discussions 链接，这里也不加 ——
+# 单人项目没人会去看 Discussions，加了只会得到一个空板块。
+blank_issues_enabled: false
+contact_links:
+  - name: 先读 README
+    url: https://github.com/FizzLabs/zhuanyin-desktop/blob/main/README.md
+    about: 环境要求、常用命令、已验收的内容与已知边界都在这里
+  - name: 为什么要先给最小复现
+    url: https://antfu.me/posts/why-reproductions-are-required
+    about: 没有最小复现的缺陷报告，排查成本往往高于修复成本

@@ -1,0 +1,22 @@
+# 拼写与文档小错：不要开 issue，直接提 PR。
+#
+# 这一条借自 antfu 的 typo.yml —— 为一个错字走一遍 issue 流程，对双方都是浪费。
+name: 拼写 / 文档小错
+description: 错别字、措辞、断链这类不需要讨论的改动
+title: 'docs: '
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **这类改动不用开 issue，直接提 PR 就行。**
+
+        如果是成体系的重写、或者你不确定该怎么改，请改用「功能请求」表单说明。
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 补充说明
+      description: 想先记一笔也可以写在这里，但更推荐直接提 PR
+    validations:
+      required: false

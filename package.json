@@ -1,0 +1,45 @@
+{
+  "name": "zhuanyin",
+  "private": true,
+  "version": "0.1.2",
+  "type": "module",
+  "description": "本机离线语音转写桌面应用：内置引擎与解码，下载一个模型即可用；拖拽音频、批量排队、逐字稿与时间轴联动",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "package:macos": "./scripts/package-macos.sh",
+    "dist": "tauri build && ./scripts/package-macos.sh",
+    "preview:states": "PREVIEW_STATES=1 vitest run src/preview-states.test.tsx"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.12.1",
+    "@tauri-apps/plugin-dialog": "^2.4.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "sonner": "^2.0.8"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^24.9.1",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "jsdom": "^30.1.1",
+    "oxfmt": "^0.72.0",
+    "oxlint": "^1.87.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9",
+    "vitest": "^5.0.3"
+  }
+}
