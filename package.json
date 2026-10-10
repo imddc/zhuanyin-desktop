@@ -1,7 +1,7 @@
 {
   "name": "zhuanyin",
   "private": true,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "type": "module",
   "description": "本机离线语音转写桌面应用：内置引擎与解码，下载一个模型即可用；拖拽音频、批量排队、逐字稿与时间轴联动",
   "scripts": {
