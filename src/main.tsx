@@ -4,7 +4,12 @@ import { createRoot } from 'react-dom/client'
 
 import { App } from './App'
 import { OnboardingWindow } from './OnboardingWindow'
+import { installProductionGuards } from './lib/productionGuards'
 import './styles.css'
+
+// 工作区与引导窗口共用入口；开发模式仍可通过 WebView 菜单调试。
+const disposeProductionGuards = installProductionGuards(import.meta.env.PROD)
+import.meta.hot?.dispose(disposeProductionGuards)
 
 const container = document.getElementById('root')
 if (container === null) {

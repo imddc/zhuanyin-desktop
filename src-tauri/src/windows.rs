@@ -20,6 +20,8 @@ pub const ONBOARDING_LABEL: &str = "onboarding";
 pub fn create_main_window(app: &AppHandle) -> tauri::Result<WebviewWindow> {
     println!("[转音] 打开窗口：{MAIN_LABEL}");
     let builder = WebviewWindowBuilder::new(app, MAIN_LABEL, WebviewUrl::App("index.html".into()))
+        // 原生层禁用生产 Web Inspector；前端快捷键拦截不能替代这个开关。
+        .devtools(cfg!(debug_assertions))
         .title("转音 · 本机语音转写")
         .inner_size(1280.0, 860.0)
         .min_inner_size(980.0, 640.0)
@@ -49,6 +51,7 @@ pub fn create_main_window(app: &AppHandle) -> tauri::Result<WebviewWindow> {
 pub fn create_onboarding_window(app: &AppHandle) -> tauri::Result<WebviewWindow> {
     println!("[转音] 打开窗口：{ONBOARDING_LABEL}");
     WebviewWindowBuilder::new(app, ONBOARDING_LABEL, WebviewUrl::App("index.html".into()))
+        .devtools(cfg!(debug_assertions))
         .title("转音 · 初次设置")
         .inner_size(880.0, 720.0)
         .min_inner_size(720.0, 560.0)
