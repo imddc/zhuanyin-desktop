@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { OUTPUT_ROOT_KEY } from './lib/settings'
+import iconUrl from '../assets/icon.svg'
 import type { IEngineStatus, IModelStatus } from './types'
 
 /**
@@ -142,6 +143,13 @@ beforeEach(() => {
   startTranscribe.mockClear()
   downloadModel.mockClear()
   invokeSpy.mockClear()
+})
+
+describe('应用品牌', () => {
+  it('侧栏显示正式图标，而不是空的装饰方块', async () => {
+    await boot(ENGINE_READY, [MODEL])
+    expect(screen.getByRole('img', { name: '转音' })).toHaveAttribute('src', iconUrl)
+  })
 })
 
 describe('输出位置', () => {
