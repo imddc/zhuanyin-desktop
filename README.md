@@ -172,3 +172,13 @@ src-tauri/src/
 - 开发构建启用了 Rust 优化级别，涉及音频性能时先阅读 `Cargo.toml` 的 profile 注释。
 - `assets/icon.svg` 是图标设计源，README 与 `src-tauri/icons/` 的桌面资源保持一致，`icon-source.png` 为 1024px 导出。
 - 变更按 Issue → 开发分支 → 验收 → PR 流程进行。
+
+### 生产版 WebView 交互与验收
+
+v0.1.4 曾暴露系统 WebView 的右键 `Reload` 菜单（[问题 #9](https://github.com/FizzLabs/zhuanyin-desktop/issues/9)）。Release 构建不会自动移除浏览器默认菜单；刷新会重建前端状态，不能作为工作区操作提供。
+
+- `src/main.tsx` 在 React 渲染前为主窗口与引导窗口安装统一生产策略：阻止默认右键菜单，输入框提供系统剪切、复制、粘贴、全选，选中的逐字稿提供复制。开发模式不限制。
+- `windows.rs` 两个窗口均显式设置 `.devtools(cfg!(debug_assertions))`；不要给发布依赖启用 `tauri/devtools` feature，也不要增加生产环境的 `open_devtools` 调用。关闭 Inspector 与移除 Reload 是两件事，必须分别处理。
+- 生产策略拦截 `Cmd/Ctrl+R`、`F5`、`F12`、常见 Inspector / Console / 查看源代码快捷键，保留常规复制、粘贴、剪切、全选与撤销。
+- 发布验收必须使用打包后的 release `.app`，分别检查主窗口与引导窗口：空白区域无 Reload/Inspect；编辑菜单和复制粘贴正常；刷新及调试快捷键无效；选中文字仍可复制；转写中操作不会重置界面。另用 Safari 的 Develop 菜单核对生产 WebView 不可检查。单元测试不能替代这些原生交互检查。
+- 这些措施防止误操作与普通调试入口暴露，**不是安全边界**：本机所有者仍可分析或修改应用。机密与授权校验不能依赖“禁用控制台”，也不应放入前端产物。
